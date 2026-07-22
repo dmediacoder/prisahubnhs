@@ -551,6 +551,16 @@ export default async function handler(req, res) {
 
     if (!category) return res.status(200).json({ total: 0, page: 1, pages: 0, jobs: [] });
 
+    // Debug mode - returns raw DB data
+    if (category === 'debug') {
+      const dr = await fetch(SUPABASE_URL + '/rest/v1/jobs?select=category,count&limit=50',
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Prefer': 'count=exact' } });
+      const countR = await fetch(SUPABASE_URL + '/rest/v1/jobs?select=id,title,category&limit=5',
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } });
+      const sample = await countR.json();
+      return res.status(200).json({ debug: true, sample, url: SUPABASE_URL });
+    }
+
     const cat = CATS_MAP[category];
     if (!cat) return res.status(404).json({ error: 'Unknown category: ' + category });
 
