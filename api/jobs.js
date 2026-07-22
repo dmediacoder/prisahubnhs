@@ -580,6 +580,20 @@ export default async function handler(req, res) {
 
     // Apply filters
     const filtered = allJobs.filter(j => passesFilter(j, cat, sponsorOnly));
+    console.log('Category:', category, 'Total from DB:', allJobs.length, 'After filter:', filtered.length);
+    if (allJobs.length > 0 && filtered.length === 0) {
+      // Return debug info to show why jobs are being filtered
+      const sample = allJobs.slice(0,3).map(j => ({
+        title: j.title,
+        contract: j.contract,
+        pattern: j.pattern,
+        location: j.location,
+        band: j.band,
+        passesInc: cat.inc ? cat.inc.some(x => (j.title||'').toLowerCase().includes(x)) : true,
+        passesExc: cat.exc ? !cat.exc.some(x => (j.title||'').toLowerCase().includes(x)) : true,
+      }));
+      return res.status(200).json({ total: 0, page: 1, pages: 0, jobs: [], debug: { dbCount: allJobs.length, sample } });
+    }
 
     // Sort newest first
     filtered.sort((a, b) => {
