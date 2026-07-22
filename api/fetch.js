@@ -88,12 +88,13 @@ function isNhs(org) {
   return false;
 }
 
-async function fetchPage(kw, loc, page, ft, bands) {
-  const p = new URLSearchParams({ keyword: kw, language: 'en', contractType: 'Permanent' });
-  if (loc)      p.set('location', loc);
-  if (page > 1) p.set('page', String(page));
-  if (ft)       p.set('workingPattern', 'full-time');
-  if (bands)    p.set('payBand', bands);
+async function fetchPage(kw, loc, page, ft, bands, cat) {
+  const p = new URLSearchParams({ keyword: kw, language: 'en', contractType: 'Permanent', sort: 'publicationDateDesc', skipPhraseSuggester: 'true' });
+  if (loc)           p.set('location',       loc);
+  if (page > 1)      p.set('page',           String(page));
+  if (ft)            p.set('workingPattern', 'full-time');
+  if (bands)         p.set('payBand',        bands);
+  if (cat.payRange)  p.set('payRange',       cat.payRange);
   try {
     const r = await fetch('https://www.jobs.nhs.uk/candidate/search/results?' + p, {
       headers: HDRS, signal: AbortSignal.timeout(12000)
@@ -128,40 +129,40 @@ async function dbSave(jobs, category) {
 }
 
 const CATS = [
-  // SUPPORT WORKERS - Band 3+, full time
-  { id: 'sw-out',   kw: ['support worker', 'healthcare assistant', 'nursing assistant'], loc: '',             ft: true,  bands: 'BAND_3,BAND_4,BAND_5,BAND_6,BAND_7' },
-  { id: 'sw-lon',   kw: ['support worker', 'healthcare assistant', 'nursing assistant'], loc: 'London',       ft: true,  bands: 'BAND_3,BAND_4,BAND_5,BAND_6,BAND_7' },
-  { id: 'sw-wm',    kw: ['support worker', 'healthcare assistant', 'nursing assistant'], loc: 'West Midlands', ft: true,  bands: 'BAND_3,BAND_4,BAND_5,BAND_6,BAND_7' },
-  { id: 'sw-wales', kw: ['support worker', 'healthcare assistant', 'nursing assistant'], loc: 'Wales',        ft: true,  bands: 'BAND_3,BAND_4,BAND_5,BAND_6,BAND_7' },
-  { id: 'sw-manc',  kw: ['support worker', 'healthcare assistant', 'nursing assistant'], loc: 'Manchester',   ft: true,  bands: 'BAND_3,BAND_4,BAND_5,BAND_6,BAND_7' },
-  { id: 'sw-wy',    kw: ['support worker', 'healthcare assistant', 'nursing assistant'], loc: 'Leeds',        ft: true,  bands: 'BAND_3,BAND_4,BAND_5,BAND_6,BAND_7' },
-  { id: 'sw-ey',    kw: ['support worker', 'healthcare assistant', 'nursing assistant'], loc: 'Hull',         ft: true,  bands: 'BAND_3,BAND_4,BAND_5,BAND_6,BAND_7' },
-  // ADMIN - Band 5+
-  { id: 'admin-out', kw: ['administrator','medical secretary','receptionist','patient coordinator','business support officer','project administrator','communications officer','office manager'], loc: '', ft: false, bands: 'BAND_5,BAND_6,BAND_7,BAND_8A' },
-  { id: 'admin-lon', kw: ['administrator','medical secretary','receptionist','patient coordinator','business support officer','project administrator','communications officer','office manager'], loc: 'London', ft: false, bands: 'BAND_5,BAND_6,BAND_7,BAND_8A' },
-  // NURSING
-  { id: 'nurse',    kw: ['staff nurse', 'registered nurse'],               loc: '', ft: false, bands: 'BAND_5' },
-  { id: 'mh-nurse', kw: ['mental health nurse', 'psychiatric nurse'],      loc: '', ft: false, bands: 'BAND_5,BAND_6,BAND_7' },
-  { id: 'res-nurse',kw: ['research nurse', 'clinical research nurse'],     loc: '', ft: false, bands: '' },
-  // CLINICAL
-  { id: 'fellow',   kw: ['clinical fellow', 'junior clinical fellow', 'trust doctor', 'foundation year'], loc: '', ft: false, bands: '' },
-  { id: 'coder',    kw: ['clinical coder', 'clinical coding'],             loc: '', ft: false, bands: '' },
-  { id: 'diet',     kw: ['dietitian', 'dietician'],                        loc: '', ft: false, bands: '' },
-  { id: 'micro',    kw: ['microbiology', 'microbiologist'],                loc: '', ft: false, bands: '' },
-  { id: 'phleb',    kw: ['phlebotomist', 'phlebotomy'],                   loc: '', ft: false, bands: '' },
-  { id: 'res-asst', kw: ['research assistant', 'clinical research assistant', 'research coordinator', 'research administrator', 'research support officer', 'clinical trials assistant', 'study coordinator'], loc: '', ft: false, bands: '' },
-  { id: 'sw3',      kw: ['social worker', 'amhp'],                         loc: '', ft: false, bands: '' },
-  // PROFESSIONAL
-  { id: 'data',     kw: ['data analyst', 'data engineer', 'information analyst', 'reporting analyst', 'performance analyst'], loc: '', ft: false, bands: '' },
-  { id: 'bi',       kw: ['business intelligence analyst', 'bi analyst', 'bi developer'],                                      loc: '', ft: false, bands: '' },
-  { id: 'fin',      kw: ['finance officer', 'finance manager', 'management accountant', 'payroll officer', 'finance business partner'], loc: '', ft: false, bands: '' },
-  { id: 'hr',       kw: ['hr adviser', 'hr officer', 'hr business partner', 'workforce administrator', 'recruitment adviser', 'learning and development', 'employee relations'], loc: '', ft: false, bands: '' },
-  { id: 'it',       kw: ['it engineer', 'network engineer', 'software developer', 'software engineer', 'infrastructure engineer', 'cyber security', 'cloud engineer', 'devops', 'it support officer', 'service desk analyst', 'biomedical engineer'], loc: '', ft: false, bands: '' },
-  { id: 'pm',       kw: ['project manager', 'programme manager', 'project coordinator', 'pmo', 'transformation manager', 'change manager', 'improvement manager'], loc: '', ft: false, bands: '' },
-  { id: 'ba',       kw: ['business analyst', 'systems analyst', 'transformation analyst', 'digital analyst', 'service improvement analyst', 'process improvement analyst'], loc: '', ft: false, bands: '' },
-  { id: 'log',      kw: ['logistics manager', 'logistics officer', 'supply chain manager', 'procurement officer', 'stores officer', 'transport manager'], loc: '', ft: false, bands: '' },
-  { id: 'coord',    kw: ['pathway coordinator', 'care coordinator', 'referral coordinator', 'discharge coordinator', 'patient coordinator', 'waiting list coordinator'], loc: '', ft: false, bands: '' },
-  { id: 'est',      kw: ['estates manager', 'estates officer', 'facilities manager', 'building services manager', 'estates engineer', 'fire safety manager', 'energy manager'], loc: '', ft: false, bands: '' },
+  // SUPPORT WORKERS - Band 3 & 4, full time
+  { id: 'sw-out',    kw: ['support worker'], loc: '',              ft: true, bands: 'BAND_3,BAND_4' },
+  { id: 'sw-lon',    kw: ['support worker'], loc: 'London',        ft: true, bands: 'BAND_3,BAND_4' },
+  { id: 'sw-wm',     kw: ['support worker'], loc: 'West Midlands', ft: true, bands: 'BAND_3,BAND_4' },
+  { id: 'sw-wales',  kw: ['support worker'], loc: 'Wales',         ft: true, bands: 'BAND_3,BAND_4' },
+  { id: 'sw-manc',   kw: ['support worker'], loc: 'Manchester',    ft: true, bands: 'BAND_3,BAND_4' },
+  { id: 'sw-wy',     kw: ['support worker'], loc: 'Leeds',         ft: true, bands: 'BAND_3,BAND_4' },
+  { id: 'sw-ey',     kw: ['support worker'], loc: 'Hull',          ft: true, bands: 'BAND_3,BAND_4' },
+  // ADMIN - Band 4 & 5
+  { id: 'admin-out', kw: ['admin'], loc: '',       ft: true, bands: 'BAND_4,BAND_5' },
+  { id: 'admin-lon', kw: ['admin'], loc: 'London', ft: true, bands: 'BAND_4,BAND_5' },
+  // NURSING - Band 4 & 5
+  { id: 'nurse',     kw: ['staff nurse', 'registered nurse'],          loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'mh-nurse',  kw: ['mental health nurse', 'psychiatric nurse'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'res-nurse', kw: ['research nurse', 'clinical research nurse'],loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  // CLINICAL - Band 4 & 5
+  { id: 'fellow',    kw: ['clinical fellow', 'junior clinical fellow', 'trust doctor', 'foundation year'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'coder',     kw: ['clinical coder', 'clinical coding'],        loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'diet',      kw: ['dietitian', 'dietician'],                   loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'micro',     kw: ['microbiology', 'microbiologist'],           loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'phleb',     kw: ['phlebotomist', 'phlebotomy'],              loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'res-asst',  kw: ['research assistant', 'clinical research assistant', 'research coordinator', 'research administrator', 'research support officer', 'clinical trials assistant', 'study coordinator'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'sw3',       kw: ['social worker'],                            loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  // PROFESSIONAL - Band 4 & 5
+  { id: 'data',      kw: ['data analyst'],                             loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'bi',        kw: ['business intelligence analyst', 'bi analyst'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'fin',       kw: ['finance officer', 'finance manager', 'management accountant', 'payroll officer'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'hr',        kw: ['hr adviser', 'hr officer', 'workforce administrator', 'recruitment adviser', 'learning and development'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'it',        kw: ['it engineer', 'software developer', 'software engineer', 'infrastructure engineer', 'cyber security', 'it support officer', 'service desk analyst'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'pm',        kw: ['project manager', 'programme manager', 'project coordinator', 'pmo'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'ba',        kw: ['business analyst', 'systems analyst', 'digital analyst', 'service improvement analyst'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'log',       kw: ['logistics', 'supply chain', 'procurement officer', 'stores officer'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'coord',     kw: ['coordinator', 'care coordinator', 'referral coordinator', 'discharge coordinator'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'est',       kw: ['estates manager', 'estates officer', 'facilities manager', 'building services manager'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
 ];
 
 export default async function handler(req, res) {
@@ -180,7 +181,7 @@ export default async function handler(req, res) {
       for (let pg = 1; pg <= 30; pg += 5) {
         const pages = [pg, pg+1, pg+2, pg+3, pg+4];
         const results = await Promise.all(
-          pages.map(p => fetchPage(kw, cat.loc, p, cat.ft, cat.bands))
+          pages.map(p => fetchPage(kw, cat.loc, p, cat.ft, cat.bands, cat))
         );
         let anyNew = false;
         for (const jobs of results) {
