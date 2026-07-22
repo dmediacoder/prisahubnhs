@@ -119,7 +119,11 @@ async function dbSave(jobs, category) {
     },
     body: JSON.stringify(rows),
   });
-  if (!r.ok) console.error('DB error:', await r.text());
+  if (!r.ok) {
+    const err = await r.text();
+    console.error('DB error:', err);
+    return 'ERROR: ' + err;
+  }
   return rows.length;
 }
 
@@ -193,6 +197,7 @@ export default async function handler(req, res) {
     }
     const saved = await dbSave(batch, cat.id);
     results[cat.id] = saved;
+    if (typeof saved === 'string' && saved.startsWith('ERROR')) break;
   }
 
   return res.status(200).json({ ok: true, fetched: results, at: new Date().toISOString() });
