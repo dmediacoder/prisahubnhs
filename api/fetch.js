@@ -138,8 +138,8 @@ const CATS = [
   { id: 'sw-wy',     kw: ['support worker'], loc: 'Leeds',         ft: true, bands: 'BAND_3,BAND_4' },
   { id: 'sw-ey',     kw: ['support worker'], loc: 'Hull',          ft: true, bands: 'BAND_3,BAND_4' },
   // ADMIN - Band 4 & 5
-  { id: 'admin-out', kw: ['admin'], loc: '',       ft: true, bands: 'BAND_4,BAND_5' },
-  { id: 'admin-lon', kw: ['admin'], loc: 'London', ft: true, bands: 'BAND_4,BAND_5' },
+  { id: 'admin-out', kw: ['administrator', 'medical secretary', 'receptionist', 'office manager', 'business support'], loc: '',       ft: false, bands: 'BAND_4,BAND_5' },
+  { id: 'admin-lon', kw: ['administrator', 'medical secretary', 'receptionist', 'office manager', 'business support'], loc: 'London', ft: false, bands: 'BAND_4,BAND_5' },
   // NURSING - Band 4 & 5
   { id: 'nurse',     kw: ['staff nurse', 'registered nurse'],          loc: '', ft: false, bands: 'BAND_4,BAND_5' },
   { id: 'mh-nurse',  kw: ['mental health nurse', 'psychiatric nurse'], loc: '', ft: false, bands: 'BAND_4,BAND_5' },
