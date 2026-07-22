@@ -148,6 +148,13 @@ const ADMIN_INC = [
   'community engagement manager','policy officer','policy manager','policy adviser',
   'information governance officer','data protection officer','foi officer',
   'facilities manager','facilities officer','facilities coordinator',
+  'admin assistant','ward clerk','ward administrator','team administrator',
+  'service administrator','business support officer','data entry',
+  'clerical officer','clerical assistant','clerical support',
+  'admin officer','admin coordinator','admin support',
+  'secretary','medical records','health records',
+  'patient administrator','clinic administrator','departmental administrator',
+  'nhs administrator','hospital administrator','trust administrator',
 ];
 const ADMIN_EXC = [
   'nurse','nursing','doctor','consultant','registrar','physician','surgeon',
@@ -457,8 +464,8 @@ const SW2_EXC   = ['support worker','healthcare assistant','admin','administrato
 
 // ── CATEGORIES ────────────────────────────────────────────────
 const CATS = [
-  {id:'admin-out', label:'Admin Outside London',          kw:ADMIN_KW, loc:'',exLoc:'london',  minBand:5,sal:32000,group:'Admin',          inc:ADMIN_INC,exc:ADMIN_EXC},
-  {id:'admin-lon', label:'Admin in London',               kw:ADMIN_KW, loc:'London',            minBand:5,sal:32000,group:'Admin',          inc:ADMIN_INC,exc:ADMIN_EXC},
+  {id:'admin-out', label:'Admin Outside London',          kw:ADMIN_KW, loc:'',exLoc:'london',  group:'Admin', inc:ADMIN_INC,exc:ADMIN_EXC},
+  {id:'admin-lon', label:'Admin in London',               kw:ADMIN_KW, loc:'London',            group:'Admin', inc:ADMIN_INC,exc:ADMIN_EXC},
   {id:'sw-out',    label:'Support Worker Outside London', kw:SW_KW,    loc:'',exLoc:'london',  minBand:3,sal:25000,ft:true,group:'Support Worker',inc:SW_INC,exc:SW_EXC},
   {id:'sw-lon',    label:'Support Worker in London',      kw:SW_KW,    loc:'London',           minBand:3,sal:25000,ft:true,group:'Support Worker',inc:SW_INC,exc:SW_EXC},
   {id:'sw-wm',     label:'Support Worker West Midlands',  kw:SW_KW,    loc:'West Midlands',    minBand:3,sal:25000,ft:true,group:'Support Worker',inc:SW_INC,exc:SW_EXC},
