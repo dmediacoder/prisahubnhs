@@ -178,7 +178,7 @@ export default async function handler(req, res) {
     const seen = new Set(), batch = [];
     for (const kw of cat.kw) {
       // Fetch 5 pages concurrently per keyword
-      for (let pg = 1; pg <= 30; pg += 5) {
+      for (let pg = 1; pg <= 50; pg += 5) {
         const pages = [pg, pg+1, pg+2, pg+3, pg+4];
         const results = await Promise.all(
           pages.map(p => fetchPage(kw, cat.loc, p, cat.ft, cat.bands, cat))
